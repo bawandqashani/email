@@ -13,6 +13,9 @@
         .shared-content {
             margin-top: 20px;
         }
+        .file-item {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -25,12 +28,13 @@
                 <textarea id="shareContent" class="form-control mb-2" placeholder="چیت دەەوێت شێر بکەیت؟"></textarea>
                 <button type="submit" class="btn btn-primary">شێرکردن</button>
             </form>
-            <form id="uploadForm" class="mb-4">
-                <input type="file" id="fileInput" class="form-control mb-2">
+            <form id="uploadForm" class="mb-4" enctype="multipart/form-data">
+                <input type="file" id="fileInput" class="form-control mb-2" name="file">
                 <button type="submit" class="btn btn-success">هەڵگرتنی فایل</button>
             </form>
             <div id="sharedContent" class="bg-light p-3">
                 <h2>شێرکراوەکان:</h2>
+                <div id="fileList"></div>
             </div>
         </main>
     </div>
@@ -54,11 +58,51 @@
             event.preventDefault();
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length > 0) {
-                alert('File uploaded successfully!');
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('File uploaded successfully!');
+                        loadFiles(); // Load files after upload
+                    } else {
+                        alert('Failed to upload file.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             } else {
                 alert('No file uploaded.');
             }
         });
+
+        // Function to load uploaded files
+        function loadFiles() {
+            fetch('/files')
+                .then(response => response.json())
+                .then(files => {
+                    const fileList = document.getElementById('fileList');
+                    fileList.innerHTML = ''; // Clear previous list
+                    files.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `<a href="/uploads/${file}" target="_blank">${file}</a>`;
+                        fileList.appendChild(fileItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Load files when the page loads
+        loadFiles();
     </script>
 </body>
 </html>
