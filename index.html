@@ -16,6 +16,10 @@
         .file-item {
             margin-bottom: 10px;
         }
+        .file-item img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +96,13 @@
                     files.forEach(file => {
                         const fileItem = document.createElement('div');
                         fileItem.className = 'file-item';
-                        fileItem.innerHTML = `<a href="/uploads/${file}" target="_blank">${file}</a>`;
+                        if (file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png') || file.endsWith('.gif')) {
+                            // Display images
+                            fileItem.innerHTML = `<img src="/uploads/${file}" alt="${file}">`;
+                        } else {
+                            // Display links for other files
+                            fileItem.innerHTML = `<a href="/uploads/${file}" target="_blank">${file}</a>`;
+                        }
                         fileList.appendChild(fileItem);
                     });
                 })
