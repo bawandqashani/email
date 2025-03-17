@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پەیجی شێرکردن</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .shared-content {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="bg-dark text-white p-3 text-center">
+            <h1>بەخێربێن بۆ پەیجی شێرکردن</h1>
+        </header>
+        <main class="mt-4">
+            <form id="shareForm" class="mb-4">
+                <textarea id="shareContent" class="form-control mb-2" placeholder="چیت دەەوێت شێر بکەیت؟"></textarea>
+                <button type="submit" class="btn btn-primary">شێرکردن</button>
+            </form>
+            <form id="uploadForm" class="mb-4">
+                <input type="file" id="fileInput" class="form-control mb-2">
+                <button type="submit" class="btn btn-success">هەڵگرتنی فایل</button>
+            </form>
+            <div id="sharedContent" class="bg-light p-3">
+                <h2>شێرکراوەکان:</h2>
+            </div>
+        </main>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript code for handling sharing and file uploads
+        document.getElementById('shareForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const content = document.getElementById('shareContent').value;
+            if (content) {
+                const sharedContentDiv = document.getElementById('sharedContent');
+                const newContent = document.createElement('p');
+                newContent.textContent = content;
+                sharedContentDiv.appendChild(newContent);
+                document.getElementById('shareContent').value = '';
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                alert('File uploaded successfully!');
+            } else {
+                alert('No file uploaded.');
+            }
+        });
+    </script>
+</body>
+</html>
