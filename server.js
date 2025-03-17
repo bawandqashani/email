@@ -1,20 +1,10 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
-
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/sharing-platform', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('Failed to connect to MongoDB', err);
-});
 
 // Set up Multer for file uploads
 const storage = multer.diskStorage({
@@ -27,38 +17,31 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Set EJS as the view engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Post model
-const Post = require('./models/Post');
-
-// Routes
-app.get('/', async (req, res) => {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.render('index', { sharedContent: posts });
-});
-
-app.post('/share', async (req, res) => {
-    const content = req.body.content;
-    if (content) {
-        const newPost = new Post({ content });
-        await newPost.save();
-    }
-    res.redirect('/');
-});
-
+// Route to handle file uploads
 app.post('/upload', upload.single('file'), (req, res) => {
     if (req.file) {
-        res.send('File uploaded successfully!');
+        res.json({ success: true, file: req.file.filename });
     } else {
-        res.status(400).send('No file uploaded.');
+        res.status(400).json({ success: false, message: 'No file uploaded.' });
     }
+});
+
+// Route to get list of uploaded files
+app.get('/files', (req, res) => {
+    fs.readdir('uploads', (err, files) => {
+        if (err) {
+            return res.status(500).json({ error: 'Unable to scan files.' });
+        }
+        res.json(files);
+    });
+});
+
+// Serve the HTML file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start the server
